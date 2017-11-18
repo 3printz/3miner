@@ -26,28 +26,12 @@ object SenzFactory extends AppConf {
     s"PING #time $timestamp @$receiver ^$sender"
   }
 
-  def blockSenz(blockId: String) = {
+  def blockSignSenz(blockId: String) = {
     val timestamp = (System.currentTimeMillis / 1000).toString
     val receiver = "*"
     val sender = senzieName
 
     s"PUT #block $blockId #sign #time $timestamp @$receiver ^$sender"
-  }
-
-  def blockSignSenz(blockId: String, bankId: String, signed: Boolean) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
-    val receiver = bankId
-    val sender = senzieName
-
-    s"DATA #block $blockId #sign $signed #time $timestamp @$receiver ^$sender"
-  }
-
-  def shareTransSenz(to: String, from: String, cBnk: String, cId: String, img: String, amnt: Int, date: String) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
-    val uid = s"$senzieName$timestamp"
-    val sender = senzieName
-
-    s"SHARE #cbnk $cBnk #cid $cId #cimg $img #from $from #camnt $amnt #cdate $date #uid $uid #time $timestamp @$to ^$sender"
   }
 
   def shareSuccessSenz(uid: String, to: String, cId: String, cBnk: String) = {

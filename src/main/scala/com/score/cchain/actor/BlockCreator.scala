@@ -1,11 +1,10 @@
 package com.score.cchain.actor
 
 import akka.actor.{Actor, Props}
-import com.score.cchain.actor.BlockSigner.Sign
 import com.score.cchain.comp.ChainDbCompImpl
 import com.score.cchain.config.AppConf
-import com.score.cchain.protocol.Block
-import com.score.cchain.util.{BlockFactory, SenzLogger}
+import com.score.cchain.protocol.{Block, Msg}
+import com.score.cchain.util.{BlockFactory, SenzFactory, SenzLogger}
 
 import scala.concurrent.duration._
 
@@ -21,6 +20,8 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
   import BlockCreator._
   import context._
+
+  val senzActor = context.actorSelection("/user/SenzActor")
 
   override def preStart(): Unit = {
     logger.debug("Start actor: " + context.self.path)
@@ -44,9 +45,8 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
         logger.debug("block created, send to sign ")
 
-        // start another actor to sign the block
-        val signer = context.actorOf(BlockSigner.props)
-        signer ! Sign(Option(block), None, None)
+        // broadcast senz about the new block
+        senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
 
         // delete all transaction saved in the block from transactions table
         chainDb.deleteTransactions(block.transactions)

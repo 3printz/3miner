@@ -8,8 +8,6 @@ import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import com.score.cchain.actor.BlockCreator.Create
-import com.score.cchain.actor.BlockSigner.{Sign, SignResp}
-import com.score.cchain.actor.TransHandler.CreateTrans
 import com.score.cchain.config.AppConf
 import com.score.cchain.protocol.{Msg, Senz, SenzType}
 import com.score.cchain.util.{RSAFactory, SenzFactory, SenzLogger, SenzParser}
@@ -178,26 +176,11 @@ class SenzActor extends Actor with AppConf with SenzLogger {
     private def onSenz(msg: String): Unit = {
       val senz = SenzParser.parseSenz(msg)
       senz match {
-        case Senz(SenzType.PUT, _, _, attr, _) =>
-          if (attr.contains("#block") && attr.contains("#sign")) {
-            // block sign request received
-            // start actor to sign the block
-            context.actorOf(BlockSigner.props) ! Sign(None, Option(senz.sender), Option(attr("#block")))
-          }
         case Senz(SenzType.DATA, _, _, attr, _) =>
           if (attr.contains("#block") && attr.contains("#sign")) {
-            // block signed response received
-            blockCreator ! SignResp(None, Option(senz.sender), attr.get("#block"), attr("#sign").toBoolean)
+            // todo block signed response received
+            // blockCreator ! SignResp(None, Option(senz.sender), attr.get("#block"), attr("#sign").toBoolean)
           }
-        case Senz(SenzType.SHARE, _, _, attr, digsig) =>
-          if (attr.contains("#to")) {
-            // cheque share request
-            // start actor to create transaction, (cheque may be)
-            context.actorOf(TransHandler.props) ! CreateTrans(senz.sender, attr("#to"), attr.get("#cbnk"), attr.get("#cid"),
-              attr.get("#camnt").map(_.toInt), attr.get("#cdate"), attr.get("#cimg"), attr.get("#uid"), digsig)
-          }
-        case _ =>
-          logger.debug(s"Not support message: $msg")
       }
     }
   }
