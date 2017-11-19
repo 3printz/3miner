@@ -22,6 +22,9 @@ trait AppConf {
   lazy val switchHost = Try(appConf.getString("switch.host")).getOrElse("dev.localhost")
   lazy val switchPort = Try(appConf.getInt("switch.port")).getOrElse(7070)
 
+  // block create config
+  lazy val miningDuration = Try(appConf.getInt("mining.duration")).getOrElse(40)
+
   // keys config
   lazy val keysDir = Try(appConf.getString("keys.dir")).getOrElse(".keys")
   lazy val publicKeyLocation = Try(appConf.getString("keys.public-key-location")).getOrElse(".keys/id_rsa.pub")

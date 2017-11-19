@@ -55,6 +55,6 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
       }
 
       // reschedule to create
-      context.system.scheduler.scheduleOnce(40.seconds, self, Create)
+      context.system.scheduler.scheduleOnce(miningDuration.seconds, self, Create)
   }
 }
