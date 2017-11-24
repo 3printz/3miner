@@ -13,6 +13,12 @@ trait ChainDbComp {
 
     def deleteTransactions(transactions: List[Transaction])
 
+    def createPreHash(hash: String): Unit
+
+    def getPreHash: Option[String]
+
+    def deletePreHash(): Unit
+
     def createBlock(block: Block): Unit
   }
 

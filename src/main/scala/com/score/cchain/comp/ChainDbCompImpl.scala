@@ -50,6 +50,32 @@ trait ChainDbCompImpl extends ChainDbComp {
       }
     }
 
+    def createPreHash(hash: String): Unit = {
+      // insert query
+      val statement = QueryBuilder.insertInto("hashes")
+        .value("hash", hash)
+
+      DbFactory.session.execute(statement)
+    }
+
+    def getPreHash: Option[String] = {
+      // select query
+      val selectStmt = select()
+        .all()
+        .from("hashes")
+        .limit(1)
+
+      val resultSet = DbFactory.session.execute(selectStmt)
+      val row = resultSet.one()
+
+      if (row != null) Option(row.getString("hash"))
+      else None
+    }
+
+    def deletePreHash(): Unit = {
+      DbFactory.session.execute(s"TRUNCATE cchain.hashes;")
+    }
+
     def createBlock(block: Block): Unit = {
       // UDT
       val transType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("transaction")
@@ -86,3 +112,4 @@ trait ChainDbCompImpl extends ChainDbComp {
   }
 
 }
+

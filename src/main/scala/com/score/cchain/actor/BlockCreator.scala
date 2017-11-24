@@ -29,19 +29,25 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
   override def receive: Receive = {
     case Create =>
-      // take transactions from db and create block
+      // take transactions, preHash from db and create block
       val trans = chainDb.getTransactions
+      val preHash = chainDb.getPreHash.getOrElse("")
       if (trans.nonEmpty) {
         val timestamp = System.currentTimeMillis
         val merkleRoot = BlockFactory.merkleRoot(trans)
+        val hash = BlockFactory.hash(timestamp.toString, merkleRoot, preHash)
         val block = Block(bankId = senzieName,
-          hash = BlockFactory.hash(timestamp.toString, merkleRoot, "prehash"),
+          hash = hash,
           transactions = trans,
           timestamp = timestamp,
           merkleRoot = merkleRoot,
-          preHash = "prehash"
+          preHash = preHash
         )
         chainDb.createBlock(block)
+
+        // set block hash as the preHash
+        chainDb.deletePreHash()
+        chainDb.createPreHash(hash)
 
         logger.debug("block created, send to sign ")
 
