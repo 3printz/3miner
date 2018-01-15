@@ -1,5 +1,8 @@
 package com.score.cchain.comp
 
+import java.util.UUID
+
+import com.datastax.driver.core.UDTValue
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
 import com.score.cchain.protocol._
@@ -106,6 +109,78 @@ trait ChainDbCompImpl extends ChainDbComp {
         .value("merkle_root", block.merkleRoot)
         .value("pre_hash", block.preHash)
         .value("hash", block.hash)
+
+      DbFactory.session.execute(statement)
+    }
+
+    def getBlock(minerId: String, id: UUID): Option[Block] = {
+      // select query
+      val selectStmt = select()
+        .all()
+        .from("blocks")
+        .where(QueryBuilder.eq("bank_id", minerId)).and(QueryBuilder.eq("id", id))
+        .limit(1)
+
+      val resultSet = DbFactory.session.execute(selectStmt)
+      val row = resultSet.one()
+
+      if (row != null) {
+        // get transactions
+        val trans = row.getSet("transactions", classOf[UDTValue]).asScala.map(t =>
+          Transaction(t.getString("bank_id"),
+            t.getUUID("id"),
+            Cheque(
+              t.getString("cheque_bank_id"),
+              t.getUUID("cheque_id"),
+              t.getInt("cheque_amount"),
+              t.getString("cheque_date"),
+              t.getString("cheque_img")),
+            t.getString("from_acc"),
+            t.getString("to_acc"),
+            t.getLong("timestamp"),
+            t.getString("digsig"),
+            t.getString("status")
+          )
+        ).toList
+
+        // get signatures
+        val sigs = row.getSet("signatures", classOf[UDTValue]).asScala.map(s =>
+          Signature(s.getString("bank_id"), s.getString("digsig"))
+        ).toList
+
+        // create block
+        Option(
+          Block(minerId,
+            id,
+            trans,
+            row.getLong("timestamp"),
+            row.getString("merkle_root"),
+            row.getString("pre_hash"),
+            row.getString("hash"),
+            sigs)
+        )
+      }
+      else None
+    }
+
+    def updateBlockSignature(block: Block, signature: Signature): Unit = {
+      // signature type
+      val sigType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("signature")
+
+      // signature
+      val sig = sigType.newValue.setString("bank_id", signature.bankId).setString("digsig", signature.digsig)
+
+      // existing signatures + new signature
+      val sigs = block.signatures.map(s =>
+        sigType.newValue
+          .setString("bank_id", s.bankId)
+          .setString("digsig", s.digsig)
+      ) :+ sig
+
+      // update query
+      val statement = QueryBuilder.update("blocks")
+        .`with`(QueryBuilder.add("signatures", sig))
+        .where(QueryBuilder.eq("bank_id", block.bankId)).and(QueryBuilder.eq("id", block.id))
 
       DbFactory.session.execute(statement)
     }

@@ -3,8 +3,8 @@ package com.score.cchain.actor
 import akka.actor.{Actor, Props}
 import com.score.cchain.comp.ChainDbCompImpl
 import com.score.cchain.config.AppConf
-import com.score.cchain.protocol.{Block, Msg}
-import com.score.cchain.util.{BlockFactory, SenzFactory, SenzLogger}
+import com.score.cchain.protocol.{Block, Msg, Signature}
+import com.score.cchain.util.{BlockFactory, RSAFactory, SenzFactory, SenzLogger}
 
 import scala.concurrent.duration._
 
@@ -49,13 +49,17 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
         chainDb.deletePreHash()
         chainDb.createPreHash(hash)
 
-        logger.debug("block created, send to sign ")
+        // then sign
+        val sig = RSAFactory.sign(block.hash)
+        chainDb.updateBlockSignature(block, Signature(senzieName, sig))
 
-        // broadcast senz about the new block
-        senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
+        logger.debug("block created")
 
         // delete all transaction saved in the block from transactions table
         chainDb.deleteTransactions(block.transactions)
+
+        // broadcast senz about the new block
+        senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
       } else {
         logger.debug("No transactions to create block" + context.self.path)
       }

@@ -48,4 +48,19 @@ object SenzFactory extends AppConf {
     s"DATA #status FAIL #cbnk $cBnk #cid $cId #uid $uid #time $timestamp @$to ^$sender"
   }
 
+  def awaSenz(uid: String, to: String) = {
+    val timestamp = (System.currentTimeMillis / 1000).toString
+    val sender = senzieName
+
+    s"AWA #uid $uid #time $timestamp @$to ^$sender DIGSIG"
+  }
+
+  def blockSignResponseSenz(blockId: String, minerId: String, signed: Boolean) = {
+    val timestamp = (System.currentTimeMillis / 1000).toString
+    val receiver = minerId
+    val sender = senzieName
+
+    s"DATA #block $blockId #sign $signed #time $timestamp @$receiver ^$sender"
+  }
+
 }

@@ -19,7 +19,7 @@ RUN rm -rf /var/cache/oracle-jdk8-installer
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # set service variables
-ENV SENZIE_NAME cminer
+ENV SENZIE_NAME sampathminer
 ENV SENZIE_MODE DEV
 ENV SWITCH_HOST dev.localhost
 ENV SWITCH_PORT 7070
