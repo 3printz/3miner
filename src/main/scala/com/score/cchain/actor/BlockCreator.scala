@@ -36,7 +36,7 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
         val timestamp = System.currentTimeMillis
         val merkleRoot = BlockFactory.merkleRoot(trans)
         val hash = BlockFactory.hash(timestamp.toString, merkleRoot, preHash)
-        val block = Block(bankId = senzieName,
+        val block = Block(miner = senzieName,
           hash = hash,
           transactions = trans,
           timestamp = timestamp,

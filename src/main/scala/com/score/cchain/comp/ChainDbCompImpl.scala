@@ -102,7 +102,7 @@ trait ChainDbCompImpl extends ChainDbComp {
 
       // insert query
       val statement = QueryBuilder.insertInto("blocks")
-        .value("bank", block.bankId)
+        .value("miner", block.miner)
         .value("id", block.id)
         .value("transactions", transactions)
         .value("timestamp", block.timestamp)
@@ -113,12 +113,12 @@ trait ChainDbCompImpl extends ChainDbComp {
       DbFactory.session.execute(statement)
     }
 
-    def getBlock(bank: String, id: UUID): Option[Block] = {
+    def getBlock(miner: String, id: UUID): Option[Block] = {
       // select query
       val selectStmt = select()
         .all()
         .from("blocks")
-        .where(QueryBuilder.eq("bank", bank)).and(QueryBuilder.eq("id", id))
+        .where(QueryBuilder.eq("miner", miner)).and(QueryBuilder.eq("id", id))
         .limit(1)
 
       val resultSet = DbFactory.session.execute(selectStmt)
@@ -145,12 +145,12 @@ trait ChainDbCompImpl extends ChainDbComp {
 
         // get signatures
         val s = row.getSet("signatures", classOf[UDTValue]).asScala.map(s =>
-          Signature(s.getString("bank"), s.getString("digsig"))
+          Signature(s.getString("miner"), s.getString("digsig"))
         ).toList
 
         // create block
         Option(
-          Block(bank,
+          Block(miner,
             id,
             t,
             row.getLong("timestamp"),
@@ -168,19 +168,19 @@ trait ChainDbCompImpl extends ChainDbComp {
       val sigType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("signature")
 
       // signature
-      val sig = sigType.newValue.setString("bank", signature.bankId).setString("digsig", signature.digsig)
+      val sig = sigType.newValue.setString("miner", signature.miner).setString("digsig", signature.digsig)
 
       // existing signatures + new signature
       val sigs = block.signatures.map(s =>
         sigType.newValue
-          .setString("bank", s.bankId)
+          .setString("miner", s.miner)
           .setString("digsig", s.digsig)
       ) :+ sig
 
       // update query
       val statement = QueryBuilder.update("blocks")
         .`with`(QueryBuilder.add("signatures", sig))
-        .where(QueryBuilder.eq("bank", block.bankId)).and(QueryBuilder.eq("id", block.id))
+        .where(QueryBuilder.eq("miner", block.miner)).and(QueryBuilder.eq("id", block.id))
 
       DbFactory.session.execute(statement)
     }

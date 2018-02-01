@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.datastax.driver.core.utils.UUIDs
 
-case class Block(bankId: String,
+case class Block(miner: String,
                  id: UUID = UUIDs.random,
                  transactions: List[Trans],
                  timestamp: Long,
