@@ -16,19 +16,19 @@ trait ChainDbCompImpl extends ChainDbComp {
 
   class ChainDbImpl extends ChainDb {
 
-    def getTransactions: List[Transaction] = {
+    def getTrans: List[Trans] = {
       // select query
       val selectStmt = select()
         .all()
-        .from("transactions")
+        .from("trans")
 
-      // get all transactions
+      // get all trans
       val resultSet = DbFactory.session.execute(selectStmt)
       resultSet.all().asScala.map { row =>
-        Transaction(row.getString("bank_id"),
+        Trans(row.getString("bank"),
           row.getUUID("id"),
           Cheque(
-            row.getString("cheque_bank_id"),
+            row.getString("cheque_bank"),
             row.getUUID("cheque_id"),
             row.getInt("cheque_amount"),
             row.getString("cheque_date"),
@@ -37,17 +37,17 @@ trait ChainDbCompImpl extends ChainDbComp {
           row.getString("to_acc"),
           row.getLong("timestamp"),
           row.getString("digsig"),
-          row.getString("status")
+          row.getString("state")
         )
       }.toList
     }
 
-    def deleteTransactions(transactions: List[Transaction]): Unit = {
-      for (t <- transactions) {
+    def deleteTrans(trans: List[Trans]): Unit = {
+      for (t <- trans) {
         // delete query
         val delStmt = delete()
-          .from("transactions")
-          .where(QueryBuilder.eq("bank_id", t.bankId)).and(QueryBuilder.eq("id", t.id))
+          .from("trans")
+          .where(QueryBuilder.eq("bank", t.bankId)).and(QueryBuilder.eq("id", t.id))
 
         DbFactory.session.execute(delStmt)
       }
@@ -84,11 +84,11 @@ trait ChainDbCompImpl extends ChainDbComp {
       val transType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("transaction")
 
       // transactions
-      val trans = block.transactions.map(t =>
+      val transactions = block.transactions.map(t =>
         transType.newValue
-          .setString("bank_id", t.bankId)
+          .setString("bank", t.bankId)
           .setUUID("id", t.id)
-          .setString("cheque_bank_id", t.cheque.bankId)
+          .setString("cheque_bank", t.cheque.bankId)
           .setUUID("cheque_id", t.cheque.id)
           .setInt("cheque_amount", t.cheque.amount)
           .setString("cheque_date", t.cheque.date)
@@ -97,14 +97,14 @@ trait ChainDbCompImpl extends ChainDbComp {
           .setString("to_acc", t.to)
           .setLong("timestamp", t.timestamp)
           .setString("digsig", t.digsig)
-          .setString("status", t.status)
+          .setString("state", t.state)
       ).asJava
 
       // insert query
       val statement = QueryBuilder.insertInto("blocks")
-        .value("bank_id", block.bankId)
+        .value("bank", block.bankId)
         .value("id", block.id)
-        .value("transactions", trans)
+        .value("transactions", transactions)
         .value("timestamp", block.timestamp)
         .value("merkle_root", block.merkleRoot)
         .value("pre_hash", block.preHash)
@@ -113,12 +113,12 @@ trait ChainDbCompImpl extends ChainDbComp {
       DbFactory.session.execute(statement)
     }
 
-    def getBlock(minerId: String, id: UUID): Option[Block] = {
+    def getBlock(bank: String, id: UUID): Option[Block] = {
       // select query
       val selectStmt = select()
         .all()
         .from("blocks")
-        .where(QueryBuilder.eq("bank_id", minerId)).and(QueryBuilder.eq("id", id))
+        .where(QueryBuilder.eq("bank", bank)).and(QueryBuilder.eq("id", id))
         .limit(1)
 
       val resultSet = DbFactory.session.execute(selectStmt)
@@ -126,11 +126,11 @@ trait ChainDbCompImpl extends ChainDbComp {
 
       if (row != null) {
         // get transactions
-        val trans = row.getSet("transactions", classOf[UDTValue]).asScala.map(t =>
-          Transaction(t.getString("bank_id"),
+        val t = row.getSet("transactions", classOf[UDTValue]).asScala.map(t =>
+          Trans(t.getString("bank"),
             t.getUUID("id"),
             Cheque(
-              t.getString("cheque_bank_id"),
+              t.getString("cheque_bank"),
               t.getUUID("cheque_id"),
               t.getInt("cheque_amount"),
               t.getString("cheque_date"),
@@ -139,25 +139,25 @@ trait ChainDbCompImpl extends ChainDbComp {
             t.getString("to_acc"),
             t.getLong("timestamp"),
             t.getString("digsig"),
-            t.getString("status")
+            t.getString("state")
           )
         ).toList
 
         // get signatures
-        val sigs = row.getSet("signatures", classOf[UDTValue]).asScala.map(s =>
-          Signature(s.getString("bank_id"), s.getString("digsig"))
+        val s = row.getSet("signatures", classOf[UDTValue]).asScala.map(s =>
+          Signature(s.getString("bank"), s.getString("digsig"))
         ).toList
 
         // create block
         Option(
-          Block(minerId,
+          Block(bank,
             id,
-            trans,
+            t,
             row.getLong("timestamp"),
             row.getString("merkle_root"),
             row.getString("pre_hash"),
             row.getString("hash"),
-            sigs)
+            s)
         )
       }
       else None
@@ -168,19 +168,19 @@ trait ChainDbCompImpl extends ChainDbComp {
       val sigType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("signature")
 
       // signature
-      val sig = sigType.newValue.setString("bank_id", signature.bankId).setString("digsig", signature.digsig)
+      val sig = sigType.newValue.setString("bank", signature.bankId).setString("digsig", signature.digsig)
 
       // existing signatures + new signature
       val sigs = block.signatures.map(s =>
         sigType.newValue
-          .setString("bank_id", s.bankId)
+          .setString("bank", s.bankId)
           .setString("digsig", s.digsig)
       ) :+ sig
 
       // update query
       val statement = QueryBuilder.update("blocks")
         .`with`(QueryBuilder.add("signatures", sig))
-        .where(QueryBuilder.eq("bank_id", block.bankId)).and(QueryBuilder.eq("id", block.id))
+        .where(QueryBuilder.eq("bank", block.bankId)).and(QueryBuilder.eq("id", block.id))
 
       DbFactory.session.execute(statement)
     }

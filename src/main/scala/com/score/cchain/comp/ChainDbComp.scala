@@ -1,6 +1,6 @@
 package com.score.cchain.comp
 
-import com.score.cchain.protocol.{Block, Transaction}
+import com.score.cchain.protocol.{Block, Trans}
 
 
 trait ChainDbComp {
@@ -8,10 +8,9 @@ trait ChainDbComp {
   val chainDb: ChainDb
 
   trait ChainDb {
+    def getTrans: List[Trans]
 
-    def getTransactions: List[Transaction]
-
-    def deleteTransactions(transactions: List[Transaction])
+    def deleteTrans(trans: List[Trans])
 
     def createPreHash(hash: String): Unit
 

@@ -6,7 +6,7 @@ import com.datastax.driver.core.utils.UUIDs
 
 case class Block(bankId: String,
                  id: UUID = UUIDs.random,
-                 transactions: List[Transaction],
+                 transactions: List[Trans],
                  timestamp: Long,
                  merkleRoot: String,
                  preHash: String,

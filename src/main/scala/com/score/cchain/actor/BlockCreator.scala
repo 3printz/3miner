@@ -3,8 +3,8 @@ package com.score.cchain.actor
 import akka.actor.{Actor, Props}
 import com.score.cchain.comp.ChainDbCompImpl
 import com.score.cchain.config.AppConf
-import com.score.cchain.protocol.{Block, Msg, Signature}
-import com.score.cchain.util.{BlockFactory, RSAFactory, SenzFactory, SenzLogger}
+import com.score.cchain.protocol.{Block, Signature}
+import com.score.cchain.util.{BlockFactory, RSAFactory, SenzLogger}
 
 import scala.concurrent.duration._
 
@@ -29,8 +29,8 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
   override def receive: Receive = {
     case Create =>
-      // take transactions, preHash from db and create block
-      val trans = chainDb.getTransactions
+      // take trans, preHash from db and create block
+      val trans = chainDb.getTrans
       val preHash = chainDb.getPreHash.getOrElse("")
       if (trans.nonEmpty) {
         val timestamp = System.currentTimeMillis
@@ -55,13 +55,13 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
         logger.debug("block created")
 
-        // delete all transaction saved in the block from transactions table
-        chainDb.deleteTransactions(block.transactions)
+        // delete all transaction saved in the block from trans table
+        chainDb.deleteTrans(block.transactions)
 
         // broadcast senz about the new block
-        senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
+        //senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
       } else {
-        logger.debug("No transactions to create block" + context.self.path)
+        logger.debug("No trans to create block" + context.self.path)
       }
 
       // reschedule to create

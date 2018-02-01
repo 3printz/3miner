@@ -1,12 +1,12 @@
 package com.score.cchain.util
 
-import com.score.cchain.protocol.Transaction
+import com.score.cchain.protocol.Trans
 
 import scala.annotation.tailrec
 
 object BlockFactory {
 
-  def merkleRoot(transactions: List[Transaction]): String = {
+  def merkleRoot(transactions: List[Trans]): String = {
     @tailrec
     def merkle(ins: List[String], outs: List[String]): String = {
       ins match {
