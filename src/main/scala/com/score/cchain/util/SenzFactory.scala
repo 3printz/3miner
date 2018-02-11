@@ -10,24 +10,15 @@ object SenzFactory extends AppConf {
   def regSenz = {
     // unsigned senz
     val publicKey = RSAFactory.loadRSAPublicKey()
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val receiver = switchName
     val sender = senzieName
 
     s"SHARE #pubkey $publicKey #time $timestamp @$receiver ^$sender"
   }
 
-  def pingSenz = {
-    // unsigned senz
-    val timestamp = (System.currentTimeMillis / 1000).toString
-    val receiver = switchName
-    val sender = senzieName
-
-    s"PING #time $timestamp @$receiver ^$sender"
-  }
-
   def blockSignSenz(blockId: String) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val receiver = "*"
     val sender = senzieName
 
@@ -35,28 +26,28 @@ object SenzFactory extends AppConf {
   }
 
   def shareSuccessSenz(uid: String, to: String, cId: String, cBnk: String) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val sender = senzieName
 
     s"DATA #status SUCCESS #cbnk $cBnk #cid $cId #uid $uid #time $timestamp @$to ^$sender"
   }
 
   def shareFailSenz(uid: String, to: String, cId: String, cBnk: String) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val sender = senzieName
 
     s"DATA #status FAIL #cbnk $cBnk #cid $cId #uid $uid #time $timestamp @$to ^$sender"
   }
 
   def awaSenz(uid: String, to: String) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val sender = senzieName
 
     s"AWA #uid $uid #time $timestamp @$to ^$sender DIGSIG"
   }
 
   def blockSignResponseSenz(blockId: String, minerId: String, signed: Boolean) = {
-    val timestamp = (System.currentTimeMillis / 1000).toString
+    val timestamp = System.currentTimeMillis
     val receiver = minerId
     val sender = senzieName
 

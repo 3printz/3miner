@@ -30,10 +30,12 @@ object DbFactory extends DbConf with SchemaConf {
 
     // create tables
     session.execute(schemaCreateTableCheques)
-    session.execute(schemaCreateTableTransactions)
     session.execute(schemaCreateTableTrans)
+    session.execute(schemaCreateTableTransactions)
     session.execute(schemaCreateTableBlocks)
     session.execute(schemaCreateTableHashes)
+    session.execute(schemaCreateTableUsers)
+    session.execute(schemaCreateTableLiens)
 
     // create index
     session.execute(schemaCreateFromAccIndex)
