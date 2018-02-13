@@ -41,7 +41,8 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreateFromAccIndex)
     session.execute(schemaCreateToAccIndex)
     session.execute(schemaCreateChequeIndex)
-    session.execute(schemaCreateLuceneIndex)
+    session.execute(schemaCreateTransactionLuceneIndex)
+    session.execute(schemaCreateChequeLuceneIndex)
   }
 
 }

@@ -23,5 +23,6 @@ trait SchemaConf {
   lazy val schemaCreateFromAccIndex = Try(schemaConf.getString("schema.createFromAccIndex")).getOrElse("")
   lazy val schemaCreateToAccIndex = Try(schemaConf.getString("schema.createToAccIndex")).getOrElse("")
   lazy val schemaCreateChequeIndex = Try(schemaConf.getString("schema.createChequeIndex")).getOrElse("")
-  lazy val schemaCreateLuceneIndex = Try(schemaConf.getString("schema.createLuceneIndex")).getOrElse("")
+  lazy val schemaCreateTransactionLuceneIndex = Try(schemaConf.getString("schema.createTransactionLuceneIndex")).getOrElse("")
+  lazy val schemaCreateChequeLuceneIndex = Try(schemaConf.getString("schema.createChequeLuceneIndex")).getOrElse("")
 }
