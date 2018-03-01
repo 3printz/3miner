@@ -19,10 +19,10 @@ trait SchemaConf {
   lazy val schemaCreateTableBlocks = Try(schemaConf.getString("schema.createTableBlocks")).getOrElse("")
   lazy val schemaCreateTableHashes = Try(schemaConf.getString("schema.createTableHashes")).getOrElse("")
   lazy val schemaCreateTableUsers = Try(schemaConf.getString("schema.createTableUsers")).getOrElse("")
-  lazy val schemaCreateTableLiens = Try(schemaConf.getString("schema.createTableLiens")).getOrElse("")
   lazy val schemaCreateFromAccIndex = Try(schemaConf.getString("schema.createFromAccIndex")).getOrElse("")
   lazy val schemaCreateToAccIndex = Try(schemaConf.getString("schema.createToAccIndex")).getOrElse("")
   lazy val schemaCreateChequeIndex = Try(schemaConf.getString("schema.createChequeIndex")).getOrElse("")
   lazy val schemaCreateTransactionLuceneIndex = Try(schemaConf.getString("schema.createTransactionLuceneIndex")).getOrElse("")
   lazy val schemaCreateChequeLuceneIndex = Try(schemaConf.getString("schema.createChequeLuceneIndex")).getOrElse("")
+  lazy val schemaCreateBlockLuceneIndex = Try(schemaConf.getString("schema.createBlockLuceneIndex")).getOrElse("")
 }

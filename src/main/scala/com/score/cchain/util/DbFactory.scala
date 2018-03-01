@@ -35,7 +35,6 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreateTableBlocks)
     session.execute(schemaCreateTableHashes)
     session.execute(schemaCreateTableUsers)
-    session.execute(schemaCreateTableLiens)
 
     // create index
     session.execute(schemaCreateFromAccIndex)
@@ -43,6 +42,7 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreateChequeIndex)
     session.execute(schemaCreateTransactionLuceneIndex)
     session.execute(schemaCreateChequeLuceneIndex)
+    session.execute(schemaCreateBlockLuceneIndex)
   }
 
 }
