@@ -24,12 +24,12 @@ object DbFactory extends DbConf with SchemaConf {
     // session.execute(schemaCreateKeyspace)
 
     // create UDT
-    session.execute(schemaCreateTypeCheque)
+    session.execute(schemaCreateTypePromize)
     session.execute(schemaCreateTypeTransaction)
     session.execute(schemaCreateTypeSignature)
 
     // create tables
-    session.execute(schemaCreateTableCheques)
+    session.execute(schemaCreateTablePromizes)
     session.execute(schemaCreateTableTrans)
     session.execute(schemaCreateTableTransactions)
     session.execute(schemaCreateTableBlocks)
@@ -37,11 +37,11 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreateTableUsers)
 
     // create index
-    session.execute(schemaCreateFromAccIndex)
-    session.execute(schemaCreateToAccIndex)
-    session.execute(schemaCreateChequeIndex)
+    session.execute(schemaCreateFromIndex)
+    session.execute(schemaCreateToIndex)
+    session.execute(schemaCreatePromizeIndex)
     session.execute(schemaCreateTransactionLuceneIndex)
-    session.execute(schemaCreateChequeLuceneIndex)
+    session.execute(schemaCreatePromizeLuceneIndex)
     session.execute(schemaCreateBlockLuceneIndex)
   }
 
