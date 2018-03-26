@@ -21,11 +21,8 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
   import BlockCreator._
   import context._
 
-  val senzActor = context.actorSelection("/user/SenzActor")
-
-  override def preStart(): Unit = {
-    logger.debug("Start actor: " + context.self.path)
-  }
+  // start to create blocks
+  self ! Create
 
   override def receive: Receive = {
     case Create =>
@@ -57,9 +54,6 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
 
         // delete all transaction saved in the block from trans table
         chainDb.deleteTrans(block.transactions)
-
-        // broadcast senz about the new block
-        //senzActor ! Msg(SenzFactory.blockSignSenz(block.id.toString))
       } else {
         logger.debug("No trans to create block" + context.self.path)
       }

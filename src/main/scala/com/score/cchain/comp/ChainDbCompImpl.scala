@@ -28,16 +28,20 @@ trait ChainDbCompImpl extends ChainDbComp {
         Trans(row.getString("bank"),
           row.getUUID("id"),
           Cheque(
-            row.getString("cheque_bank"),
-            row.getUUID("cheque_id"),
-            row.getInt("cheque_amount"),
-            row.getString("cheque_date"),
-            row.getString("cheque_img")),
-          row.getString("from_acc"),
-          row.getString("to_acc"),
+            row.getString("promize_bank"),
+            row.getUUID("promize_id"),
+            row.getString("promize_amount"),
+            row.getString("promize_blob"),
+            null, null, null),
+          row.getString("from_account"),
+          row.getString("from_bank"),
+          row.getString("from_zaddress"),
+          row.getString("to_account"),
+          row.getString("to_bank"),
+          row.getString("to_zaddress"),
           row.getLong("timestamp"),
           row.getString("digsig"),
-          row.getString("state")
+          row.getString("type")
         )
       }.toList
     }
@@ -47,7 +51,7 @@ trait ChainDbCompImpl extends ChainDbComp {
         // delete query
         val delStmt = delete()
           .from("trans")
-          .where(QueryBuilder.eq("bank", t.bankId)).and(QueryBuilder.eq("id", t.id))
+          .where(QueryBuilder.eq("bank", t.bank)).and(QueryBuilder.eq("id", t.id))
 
         DbFactory.session.execute(delStmt)
       }
@@ -86,18 +90,21 @@ trait ChainDbCompImpl extends ChainDbComp {
       // transactions
       val transactions = block.transactions.map(t =>
         transType.newValue
-          .setString("bank", t.bankId)
+          .setString("bank", t.bank)
           .setUUID("id", t.id)
-          .setString("cheque_bank", t.cheque.bankId)
-          .setUUID("cheque_id", t.cheque.id)
-          .setInt("cheque_amount", t.cheque.amount)
-          .setString("cheque_date", t.cheque.date)
-          .setString("cheque_img", t.cheque.img)
-          .setString("from_acc", t.from)
-          .setString("to_acc", t.to)
+          .setString("promize_bank", t.cheque.bankId)
+          .setUUID("promize_id", t.cheque.id)
+          .setString("promize_amount", t.cheque.amount)
+          .setString("promize_blob", t.cheque.blob)
+          .setString("from_bank", t.fromBank)
+          .setString("from_account", t.fromAccount)
+          .setString("from_zaddress", t.fromZaddress)
+          .setString("to_bank", t.toBank)
+          .setString("to_account", t.toAccount)
+          .setString("to_zaddress", t.toZaddress)
           .setLong("timestamp", t.timestamp)
           .setString("digsig", t.digsig)
-          .setString("state", t.state)
+          .setString("type", t._type)
       ).asJava
 
       // insert query
@@ -130,16 +137,20 @@ trait ChainDbCompImpl extends ChainDbComp {
           Trans(t.getString("bank"),
             t.getUUID("id"),
             Cheque(
-              t.getString("cheque_bank"),
-              t.getUUID("cheque_id"),
-              t.getInt("cheque_amount"),
-              t.getString("cheque_date"),
-              t.getString("cheque_img")),
-            t.getString("from_acc"),
-            t.getString("to_acc"),
+              t.getString("promize_bank"),
+              t.getUUID("promize_id"),
+              t.getString("promize_amount"),
+              t.getString("promize_blob"),
+              null, null, null),
+            t.getString("from_account"),
+            t.getString("from_bank"),
+            t.getString("from_zaddress"),
+            t.getString("to_account"),
+            t.getString("to_bank"),
+            t.getString("to_zaddress"),
             t.getLong("timestamp"),
             t.getString("digsig"),
-            t.getString("state")
+            t.getString("type")
           )
         ).toList
 

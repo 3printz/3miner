@@ -4,11 +4,18 @@ import java.util.UUID
 
 import com.datastax.driver.core.utils.UUIDs
 
-case class Trans(bankId: String,
+case class Trans(bank: String,
                  id: UUID = UUIDs.random,
                  cheque: Cheque,
-                 from: String,
-                 to: String,
+
+                 fromAccount: String,
+                 fromBank: String,
+                 fromZaddress: String,
+
+                 toAccount: String,
+                 toBank: String,
+                 toZaddress: String,
+
                  timestamp: Long = System.currentTimeMillis,
                  digsig: String,
-                 state: String = "TRANSFER")
+                 _type: String = "TRANSFER")
