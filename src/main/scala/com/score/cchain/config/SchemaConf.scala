@@ -24,5 +24,4 @@ trait SchemaConf {
   lazy val schemaCreatePromizeIndex = Try(schemaConf.getString("schema.createPromizeIndex")).getOrElse("")
   lazy val schemaCreateTransactionLuceneIndex = Try(schemaConf.getString("schema.createTransactionLuceneIndex")).getOrElse("")
   lazy val schemaCreatePromizeLuceneIndex = Try(schemaConf.getString("schema.createPromizeLuceneIndex")).getOrElse("")
-  lazy val schemaCreateBlockLuceneIndex = Try(schemaConf.getString("schema.createBlockLuceneIndex")).getOrElse("")
 }

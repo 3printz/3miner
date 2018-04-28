@@ -42,7 +42,6 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreatePromizeIndex)
     session.execute(schemaCreateTransactionLuceneIndex)
     session.execute(schemaCreatePromizeLuceneIndex)
-    session.execute(schemaCreateBlockLuceneIndex)
   }
 
 }
