@@ -4,7 +4,7 @@ case class Result(r: Int)
 
 case class Message(m: String)
 
-object DoWhile extends App {
+object DoWhile {
   val rl = List(Result(2), Result(5), Result(3), Result(7), Result(10))
   if (rl.exists(_.r >= 11)) {
     val s = rl.filter(_.r > 3).map(x => s"yes... ${x.r.toString}")
@@ -12,9 +12,6 @@ object DoWhile extends App {
   } else {
     println("no...")
   }
-
-  rl.min
-  rl.max
 
   val ml = List(Message("a, b, c"), Message("r, f"), Message("j, l"))
   val fl = ml.flatMap(m => m.m.split(",").toList).filter(_.equalsIgnoreCase("a"))
