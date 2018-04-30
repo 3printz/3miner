@@ -17,11 +17,11 @@ object DbFactory extends DbConf with SchemaConf {
       .build()
   }
 
-  lazy val session: Session = cluster.connect(cassandraKeyspace)
+  lazy val session: Session = cluster.connect()
 
   val initDb = () => {
-    // TODO we disabled this
-    // session.execute(schemaCreateKeyspace)
+    // create keyspace
+    session.execute(schemaCreateKeyspace)
 
     // create UDT
     session.execute(schemaCreateTypePromize)

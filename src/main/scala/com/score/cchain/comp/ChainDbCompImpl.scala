@@ -20,7 +20,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       // select query
       val selectStmt = select()
         .all()
-        .from("trans")
+        .from("cchain", "trans")
 
       // get all trans
       val resultSet = DbFactory.session.execute(selectStmt)
@@ -50,7 +50,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       for (t <- trans) {
         // delete query
         val delStmt = delete()
-          .from("trans")
+          .from("cchain", "trans")
           .where(QueryBuilder.eq("bank", t.bank)).and(QueryBuilder.eq("id", t.id))
 
         DbFactory.session.execute(delStmt)
@@ -59,7 +59,7 @@ trait ChainDbCompImpl extends ChainDbComp {
 
     def createPreHash(hash: String): Unit = {
       // insert query
-      val statement = QueryBuilder.insertInto("hashes")
+      val statement = QueryBuilder.insertInto("cchain", "hashes")
         .value("hash", hash)
 
       DbFactory.session.execute(statement)
@@ -69,7 +69,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       // select query
       val selectStmt = select()
         .all()
-        .from("hashes")
+        .from("cchain", "hashes")
         .limit(1)
 
       val resultSet = DbFactory.session.execute(selectStmt)
@@ -108,7 +108,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       ).asJava
 
       // insert query
-      val statement = QueryBuilder.insertInto("blocks")
+      val statement = QueryBuilder.insertInto("cchain", "blocks")
         .value("miner", block.miner)
         .value("id", block.id)
         .value("transactions", transactions)
@@ -124,7 +124,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       // select query
       val selectStmt = select()
         .all()
-        .from("blocks")
+        .from("cchain", "blocks")
         .where(QueryBuilder.eq("miner", miner)).and(QueryBuilder.eq("id", id))
         .limit(1)
 
@@ -189,7 +189,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       ) :+ sig
 
       // update query
-      val statement = QueryBuilder.update("blocks")
+      val statement = QueryBuilder.update("cchain", "blocks")
         .`with`(QueryBuilder.add("signatures", sig))
         .where(QueryBuilder.eq("miner", block.miner)).and(QueryBuilder.eq("id", block.id))
 
