@@ -24,7 +24,6 @@ object DbFactory extends DbConf with SchemaConf {
     session.execute(schemaCreateKeyspace)
 
     // create UDT
-    session.execute(schemaCreateTypePromize)
     session.execute(schemaCreateTypeTransaction)
     session.execute(schemaCreateTypeSignature)
 

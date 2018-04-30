@@ -10,7 +10,6 @@ trait SchemaConf {
 
   // cassandra config
   lazy val schemaCreateKeyspace = Try(schemaConf.getString("schema.createKeyspace")).getOrElse("")
-  lazy val schemaCreateTypePromize = Try(schemaConf.getString("schema.createTypePromize")).getOrElse("")
   lazy val schemaCreateTypeTransaction = Try(schemaConf.getString("schema.createTypeTransaction")).getOrElse("")
   lazy val schemaCreateTypeSignature = Try(schemaConf.getString("schema.createTypeSignature")).getOrElse("")
   lazy val schemaCreateTablePromizes = Try(schemaConf.getString("schema.createTablePromizes")).getOrElse("")
