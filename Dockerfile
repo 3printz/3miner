@@ -19,13 +19,13 @@ RUN rm -rf /var/cache/oracle-jdk8-installer
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # set service variables
-ENV SENZIE_NAME sampathminer
+ENV SENZIE_NAME sampath.miner
 ENV SENZIE_MODE DEV
 ENV SWITCH_HOST dev.localhost
 ENV SWITCH_PORT 7070
 ENV CASSANDRA_HOST dev.localhost
 ENV CASSANDRA_PORT 9042
-ENV CASSANDRA_KEYSPACE cchain
+ENV CASSANDRA_KEYSPACE zchain
 ENV MINING_INTERVAL 300
 
 # working directory
