@@ -5,12 +5,13 @@ import java.util.UUID
 import com.datastax.driver.core.UDTValue
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
+import com.score.cchain.config.CassandraConf
 import com.score.cchain.protocol._
-import com.score.cchain.util.DbFactory
+import com.score.cchain.util.MinerzFactory
 
 import scala.collection.JavaConverters._
 
-trait ChainDbCompImpl extends ChainDbComp {
+trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
 
   val chainDb = new ChainDbImpl
 
@@ -20,10 +21,10 @@ trait ChainDbCompImpl extends ChainDbComp {
       // select query
       val selectStmt = select()
         .all()
-        .from("cchain", "trans")
+        .from(cassandraKeyspace, "trans")
 
       // get all trans
-      val resultSet = DbFactory.session.execute(selectStmt)
+      val resultSet = MinerzFactory.session.execute(selectStmt)
       resultSet.all().asScala.map { row =>
         Trans(row.getString("bank"),
           row.getUUID("id"),
@@ -50,29 +51,29 @@ trait ChainDbCompImpl extends ChainDbComp {
       for (t <- trans) {
         // delete query
         val delStmt = delete()
-          .from("cchain", "trans")
+          .from(cassandraKeyspace, "trans")
           .where(QueryBuilder.eq("bank", t.bank)).and(QueryBuilder.eq("id", t.id))
 
-        DbFactory.session.execute(delStmt)
+        MinerzFactory.session.execute(delStmt)
       }
     }
 
     def createPreHash(hash: String): Unit = {
       // insert query
-      val statement = QueryBuilder.insertInto("cchain", "hashes")
+      val statement = QueryBuilder.insertInto(cassandraKeyspace, "hashes")
         .value("hash", hash)
 
-      DbFactory.session.execute(statement)
+      MinerzFactory.session.execute(statement)
     }
 
     def getPreHash: Option[String] = {
       // select query
       val selectStmt = select()
         .all()
-        .from("cchain", "hashes")
+        .from(cassandraKeyspace, "hashes")
         .limit(1)
 
-      val resultSet = DbFactory.session.execute(selectStmt)
+      val resultSet = MinerzFactory.session.execute(selectStmt)
       val row = resultSet.one()
 
       if (row != null) Option(row.getString("hash"))
@@ -80,12 +81,12 @@ trait ChainDbCompImpl extends ChainDbComp {
     }
 
     def deletePreHash(): Unit = {
-      DbFactory.session.execute(s"TRUNCATE cchain.hashes;")
+      MinerzFactory.session.execute(s"TRUNCATE $cassandraKeyspace.hashes;")
     }
 
     def createBlock(block: Block): Unit = {
       // UDT
-      val transType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("transaction")
+      val transType = MinerzFactory.cluster.getMetadata.getKeyspace(cassandraKeyspace).getUserType("transaction")
 
       // transactions
       val transactions = block.transactions.map(t =>
@@ -108,7 +109,7 @@ trait ChainDbCompImpl extends ChainDbComp {
       ).asJava
 
       // insert query
-      val statement = QueryBuilder.insertInto("cchain", "blocks")
+      val statement = QueryBuilder.insertInto(cassandraKeyspace, "blocks")
         .value("miner", block.miner)
         .value("id", block.id)
         .value("transactions", transactions)
@@ -117,18 +118,18 @@ trait ChainDbCompImpl extends ChainDbComp {
         .value("pre_hash", block.preHash)
         .value("hash", block.hash)
 
-      DbFactory.session.execute(statement)
+      MinerzFactory.session.execute(statement)
     }
 
     def getBlock(miner: String, id: UUID): Option[Block] = {
       // select query
       val selectStmt = select()
         .all()
-        .from("cchain", "blocks")
+        .from(cassandraKeyspace, "blocks")
         .where(QueryBuilder.eq("miner", miner)).and(QueryBuilder.eq("id", id))
         .limit(1)
 
-      val resultSet = DbFactory.session.execute(selectStmt)
+      val resultSet = MinerzFactory.session.execute(selectStmt)
       val row = resultSet.one()
 
       if (row != null) {
@@ -176,7 +177,7 @@ trait ChainDbCompImpl extends ChainDbComp {
 
     def updateBlockSignature(block: Block, signature: Signature): Unit = {
       // signature type
-      val sigType = DbFactory.cluster.getMetadata.getKeyspace("cchain").getUserType("signature")
+      val sigType = MinerzFactory.cluster.getMetadata.getKeyspace(cassandraKeyspace).getUserType("signature")
 
       // signature
       val sig = sigType.newValue.setString("miner", signature.miner).setString("digsig", signature.digsig)
@@ -189,11 +190,11 @@ trait ChainDbCompImpl extends ChainDbComp {
       ) :+ sig
 
       // update query
-      val statement = QueryBuilder.update("cchain", "blocks")
+      val statement = QueryBuilder.update(cassandraKeyspace, "blocks")
         .`with`(QueryBuilder.add("signatures", sig))
         .where(QueryBuilder.eq("miner", block.miner)).and(QueryBuilder.eq("id", block.id))
 
-      DbFactory.session.execute(statement)
+      MinerzFactory.session.execute(statement)
     }
   }
 
