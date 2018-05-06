@@ -20,10 +20,10 @@ trait AppConf {
   // server config
   lazy val switchName = Try(appConf.getString("switch.name")).getOrElse("senzswitch")
   lazy val switchHost = Try(appConf.getString("switch.host")).getOrElse("dev.localhost")
-  lazy val switchPort = Try(appConf.getInt("switch.port")).getOrElse(7070)
+  lazy val switchPort = Try(appConf.getInt("switch.port")).getOrElse(7171)
 
   // block create config
-  lazy val miningInterval = Try(appConf.getInt("mining.interval")).getOrElse(300)
+  lazy val miningInterval = Try(appConf.getInt("miner.interval")).getOrElse(300)
 
   // keys config
   lazy val keysDir = Try(appConf.getString("keys.dir")).getOrElse(".keys")

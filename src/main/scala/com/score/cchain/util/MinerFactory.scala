@@ -3,7 +3,7 @@ package com.score.cchain.util
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
 import com.score.cchain.config.{CassandraConf, SchemaConf}
 
-object MinerzFactory extends CassandraConf with SchemaConf {
+object MinerFactory extends CassandraConf with SchemaConf {
 
   lazy val poolingOptions: PoolingOptions = {
     new PoolingOptions()
