@@ -37,6 +37,8 @@ object MinerFactory extends CassandraConf with SchemaConf {
     session.execute(schemaCreateFromIndex)
     session.execute(schemaCreateToIndex)
     session.execute(schemaCreatePromizeIndex)
+    session.execute(schemaCreateTransactionLuceneIndex)
+    session.execute(schemaCreatePromizeLuceneIndex)
   }
 
   def initIndex() = {
