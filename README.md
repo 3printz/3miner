@@ -1,4 +1,4 @@
-# cminer
+# minerz
 
 Blockchain miner for cchain app
 

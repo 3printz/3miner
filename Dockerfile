@@ -32,7 +32,7 @@ ENV MINING_INTERVAL 300
 WORKDIR /app
 
 # copy file
-ADD target/scala-2.11/cminer-assembly-1.0.jar cminer.jar
+ADD target/scala-2.11/minerz-assembly-1.0.jar minerz.jar
 
 # logs volume
 RUN mkdir logs
@@ -42,4 +42,4 @@ VOLUME ["/app/logs"]
 VOLUME ["/app/.keys"]
 
 # command
-ENTRYPOINT [ "java", "-jar", "/app/cminer.jar" ]
+ENTRYPOINT [ "java", "-jar", "/app/minerz.jar" ]

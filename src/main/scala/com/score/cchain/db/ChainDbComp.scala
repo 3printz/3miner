@@ -1,4 +1,4 @@
-package com.score.cchain.comp
+package com.score.cchain.db
 
 import java.util.UUID
 

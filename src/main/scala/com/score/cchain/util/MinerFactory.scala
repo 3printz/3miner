@@ -1,21 +1,18 @@
 package com.score.cchain.util
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
-import com.score.cchain.config.{CassandraConf, SchemaConf}
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
+import akka.stream.ActorMaterializer
+import akka.util.ByteString
+import com.score.cchain.config.{ElasticConf, SchemaConf}
+import com.score.cchain.db.CassandraCluster
 
-object MinerFactory extends CassandraConf with SchemaConf {
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
-  lazy val poolingOptions: PoolingOptions = {
-    new PoolingOptions()
-      .setConnectionsPerHost(HostDistance.LOCAL, 4, 10)
-      .setConnectionsPerHost(HostDistance.REMOTE, 2, 4)
-  }
-  lazy val cluster: Cluster = {
-    Cluster.builder()
-      .addContactPoint(cassandraHost)
-      .build()
-  }
-  lazy val session: Session = cluster.connect()
+object MinerFactory extends CassandraCluster with SchemaConf with ElasticConf with SenzLogger {
 
   def initSchema() {
     // create keyspace
@@ -26,23 +23,53 @@ object MinerFactory extends CassandraConf with SchemaConf {
     session.execute(schemaCreateTypeSignature)
 
     // create tables
-    session.execute(schemaCreateTablePromizes)
     session.execute(schemaCreateTableTrans)
     session.execute(schemaCreateTableTransactions)
     session.execute(schemaCreateTableBlocks)
     session.execute(schemaCreateTableHashes)
-    session.execute(schemaCreateTableUsers)
+    session.execute(schemaCreateTableSenzies)
 
     // create index
     session.execute(schemaCreateFromIndex)
     session.execute(schemaCreateToIndex)
-    session.execute(schemaCreatePromizeIndex)
-    session.execute(schemaCreateTransactionLuceneIndex)
-    session.execute(schemaCreatePromizeLuceneIndex)
   }
 
-  def initIndex() = {
+  def initIndex(): Boolean = {
+    implicit val system = ActorSystem()
+    implicit val ec = system.dispatcher
+    implicit val materializer = ActorMaterializer()
+    implicit val timeout = 40.seconds
 
+    def index(index: String): Boolean = {
+      // index
+      val u = s"http://$elasticHost:9200/$index"
+      val j =
+        s"""
+        "settings":{
+          "keyspace": "zchain"
+        },
+        {
+          "mappings": {
+            "transactions" : {
+              "discover" : ".*"
+            }
+          }
+        }
+      """
+
+      logger.info(s"init index request uri $u")
+      logger.info(s"init index request data $j")
+
+      val req = HttpRequest(PUT, uri = u, entity = ByteString(j.stripLineEnd))
+      val resp = Await.result(Http().singleRequest(req), timeout)
+
+      logger.info(s"init index response: $resp")
+
+      resp.status == StatusCodes.OK || resp.status == StatusCodes.BadRequest
+    }
+
+    // create indexes
+    index("transactions") || index("blocks")
   }
 
 }

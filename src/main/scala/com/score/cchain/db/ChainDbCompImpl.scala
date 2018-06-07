@@ -1,4 +1,4 @@
-package com.score.cchain.comp
+package com.score.cchain.db
 
 import java.util.UUID
 
@@ -26,23 +26,14 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
       // get all trans
       val resultSet = MinerFactory.session.execute(selectStmt)
       resultSet.all().asScala.map { row =>
-        Trans(row.getString("bank"),
+        Trans(row.getString("origin_zaddress"),
           row.getUUID("id"),
-          Cheque(
-            row.getString("promize_bank"),
-            row.getUUID("promize_id"),
-            row.getString("promize_amount"),
-            row.getString("promize_blob"),
-            null, null, null),
-          row.getString("from_account"),
-          row.getString("from_bank"),
           row.getString("from_zaddress"),
-          row.getString("to_account"),
-          row.getString("to_bank"),
           row.getString("to_zaddress"),
+          row.getString("action"),
+          row.getString("blob"),
           row.getLong("timestamp"),
-          row.getString("digsig"),
-          row.getString("type")
+          row.getString("digsig")
         )
       }.toList
     }
@@ -52,7 +43,7 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
         // delete query
         val delStmt = delete()
           .from(cassandraKeyspace, "trans")
-          .where(QueryBuilder.eq("bank", t.bank)).and(QueryBuilder.eq("id", t.id))
+          .where(QueryBuilder.eq("origin_zaddress", t.oriZaddr)).and(QueryBuilder.eq("id", t.id))
 
         MinerFactory.session.execute(delStmt)
       }
@@ -91,21 +82,14 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
       // transactions
       val transactions = block.transactions.map(t =>
         transType.newValue
-          .setString("bank", t.bank)
+          .setString("origin_zaddress", t.oriZaddr)
           .setUUID("id", t.id)
-          .setString("promize_bank", t.cheque.bankId)
-          .setUUID("promize_id", t.cheque.id)
-          .setString("promize_amount", t.cheque.amount)
-          .setString("promize_blob", t.cheque.blob)
-          .setString("from_bank", t.fromBank)
-          .setString("from_account", t.fromAccount)
-          .setString("from_zaddress", t.fromZaddress)
-          .setString("to_bank", t.toBank)
-          .setString("to_account", t.toAccount)
-          .setString("to_zaddress", t.toZaddress)
+          .setString("from_zaddress", t.fromZaddr)
+          .setString("to_zaddress", t.toZaddr)
+          .setString("action", t.action)
+          .setString("blob", t.blob)
           .setLong("timestamp", t.timestamp)
           .setString("digsig", t.digsig)
-          .setString("type", t._type)
       ).asJava
 
       // insert query
@@ -135,23 +119,14 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
       if (row != null) {
         // get transactions
         val t = row.getSet("transactions", classOf[UDTValue]).asScala.map(t =>
-          Trans(t.getString("bank"),
+          Trans(t.getString("origin_zaddress"),
             t.getUUID("id"),
-            Cheque(
-              t.getString("promize_bank"),
-              t.getUUID("promize_id"),
-              t.getString("promize_amount"),
-              t.getString("promize_blob"),
-              null, null, null),
-            t.getString("from_account"),
-            t.getString("from_bank"),
             t.getString("from_zaddress"),
-            t.getString("to_account"),
-            t.getString("to_bank"),
             t.getString("to_zaddress"),
+            t.getString("action"),
+            t.getString("blob"),
             t.getLong("timestamp"),
-            t.getString("digsig"),
-            t.getString("type")
+            t.getString("digsig")
           )
         ).toList
 

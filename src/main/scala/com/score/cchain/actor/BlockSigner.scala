@@ -3,7 +3,7 @@ package com.score.cchain.actor
 import java.util.UUID
 
 import akka.actor.{Actor, Props}
-import com.score.cchain.comp.ChainDbCompImpl
+import com.score.cchain.db.ChainDbCompImpl
 import com.score.cchain.config.AppConf
 import com.score.cchain.protocol.{Msg, Signature}
 import com.score.cchain.util.{RSAFactory, SenzFactory, SenzLogger}
