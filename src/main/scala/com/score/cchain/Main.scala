@@ -16,7 +16,7 @@ object Main extends App {
 
   // start senz, block creator
   implicit val system = ActorSystem("senz")
-  system.actorOf(SenzActor.props, name = "SenzActor")
+  //system.actorOf(SenzActor.props, name = "SenzActor")
   system.actorOf(BlockCreator.props, name = "BlockCreator")
 
 }

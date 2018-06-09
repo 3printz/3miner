@@ -45,12 +45,12 @@ object MinerFactory extends CassandraCluster with SchemaConf with ElasticConf wi
       val u = s"http://$elasticHost:9200/$index"
       val j =
         s"""
-        "settings":{
-          "keyspace": "zchain"
-        },
         {
+          "settings":{
+            "keyspace": "zchain"
+          },
           "mappings": {
-            "transactions" : {
+            "$index" : {
               "discover" : ".*"
             }
           }
@@ -59,6 +59,10 @@ object MinerFactory extends CassandraCluster with SchemaConf with ElasticConf wi
 
       logger.info(s"init index request uri $u")
       logger.info(s"init index request data $j")
+
+      //      val req = HttpRequest(PUT, uri = u)
+      //        .withEntity(ContentTypes.`application/json`, ByteString(j.stripLineEnd))
+      //      val resp = Await.result(Http().singleRequest(req), timeout)
 
       val req = HttpRequest(PUT, uri = u, entity = ByteString(j.stripLineEnd))
       val resp = Await.result(Http().singleRequest(req), timeout)
@@ -69,7 +73,7 @@ object MinerFactory extends CassandraCluster with SchemaConf with ElasticConf wi
     }
 
     // create indexes
-    index("transactions") || index("blocks")
+    index("transactions") | index("blocks")
   }
 
 }

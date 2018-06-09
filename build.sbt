@@ -6,7 +6,7 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= {
 
-  val akkaVersion       = "2.4.14"
+  val akkaVersion       = "2.4.17"
   val cassandraVersion  = "3.1.1"
   val slickVersion      = "3.0.0"
 
@@ -14,7 +14,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"           %% "akka-actor"               % akkaVersion,
     "com.typesafe.akka"           %% "akka-slf4j"               % akkaVersion,
     "com.typesafe.akka"           %% "akka-stream"              % akkaVersion,
-    "com.typesafe.akka"           %% "akka-http"                % "10.1.1",
+    "com.typesafe.akka"           %% "akka-http"                % "10.0.4",
     "com.typesafe.slick"          %% "slick"                    % slickVersion,
     "org.scalaz"                  %% "scalaz-core"              % "7.2.15",
     "com.datastax.cassandra"      % "cassandra-driver-core"     % cassandraVersion,
