@@ -60,10 +60,6 @@ object MinerFactory extends CassandraCluster with SchemaConf with ElasticConf wi
       logger.info(s"init index request uri $u")
       logger.info(s"init index request data $j")
 
-      //      val req = HttpRequest(PUT, uri = u)
-      //        .withEntity(ContentTypes.`application/json`, ByteString(j.stripLineEnd))
-      //      val resp = Await.result(Http().singleRequest(req), timeout)
-
       val req = HttpRequest(PUT, uri = u, entity = ByteString(j.stripLineEnd))
       val resp = Await.result(Http().singleRequest(req), timeout)
 
