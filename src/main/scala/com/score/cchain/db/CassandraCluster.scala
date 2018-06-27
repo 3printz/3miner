@@ -1,6 +1,6 @@
 package com.score.cchain.db
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
+import com.datastax.driver.core._
 import com.score.cchain.config.CassandraConf
 
 /**
@@ -18,8 +18,9 @@ trait CassandraCluster extends CassandraConf {
   lazy val cluster: Cluster = {
     val builder = Cluster.builder()
     builder.addContactPoint(cassandraHost)
+    builder.withQueryOptions(new QueryOptions().setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM))
     builder.withPort(cassandraPort)
-    builder.withPoolingOptions(poolingOptions)
+    //builder.withPoolingOptions(poolingOptions)
 
     builder.build()
   }

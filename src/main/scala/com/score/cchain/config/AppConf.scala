@@ -23,7 +23,7 @@ trait AppConf {
   lazy val switchPort = Try(appConf.getInt("switch.port")).getOrElse(7171)
 
   // block create config
-  lazy val miningInterval = Try(appConf.getInt("miner.interval")).getOrElse(300)
+  lazy val miningInterval = Try(appConf.getInt("miner.interval")).getOrElse(10)
 
   // keys config
   lazy val keysDir = Try(appConf.getString("keys.dir")).getOrElse(".keys")
