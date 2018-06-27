@@ -20,8 +20,6 @@ trait ChainDbComp {
 
     def deletePreHash(): Unit
 
-    def createTrans(trans: Trans): Unit
-
     def getBlock(miner: String, id: UUID): Option[Block]
 
     def createBlock(block: Block): Unit

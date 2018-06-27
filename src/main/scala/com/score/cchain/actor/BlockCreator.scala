@@ -1,17 +1,16 @@
 package com.score.cchain.actor
 
 import akka.actor.{Actor, Props}
-import com.score.cchain.config.AppConf
 import com.score.cchain.db.ChainDbCompImpl
-import com.score.cchain.protocol.Trans
-import com.score.cchain.util.SenzLogger
+import com.score.cchain.config.AppConf
+import com.score.cchain.protocol.{Block, Signature}
+import com.score.cchain.util.{BlockFactory, RSAFactory, SenzLogger}
+
 import scala.concurrent.duration._
 
 object BlockCreator {
 
   case class Create()
-
-  case class Tick()
 
   def props = Props(classOf[BlockCreator])
 
@@ -22,32 +21,44 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with SenzLogg
   import BlockCreator._
   import context._
 
-  context.system.scheduler.schedule(5.seconds, miningInterval.seconds, self, Tick)
-
   // start to create blocks
   self ! Create
 
-  var x = 0
-
   override def receive: Receive = {
     case Create =>
-      // reschedule to create
-      val trans = Trans(
-        oriZaddr = "0775432015",
-        fromZaddr = "0775432015",
-        toZaddr = "0675432015",
-        action = "create",
-        blob = "sdsd",
-        digsig = "sdsds"
-      )
-      chainDb.createTrans(trans)
-      self ! Create
-      x = x +1
-      logger.debug(s"x.. $x")
-    case Tick =>
-      logger.debug(s"created trans $x")
-      self ! Create
+      // take trans, preHash from db and create block
+      val trans = chainDb.getTrans
+      val preHash = chainDb.getPreHash.getOrElse("")
+      if (trans.nonEmpty) {
+        val timestamp = System.currentTimeMillis
+        val merkleRoot = BlockFactory.merkleRoot(trans)
+        val hash = BlockFactory.hash(timestamp.toString, merkleRoot, preHash)
+        val block = Block(miner = senzieName,
+          hash = hash,
+          transactions = trans,
+          timestamp = timestamp,
+          merkleRoot = merkleRoot,
+          preHash = preHash
+        )
+        chainDb.createBlock(block)
 
+        // set block hash as the preHash
+        chainDb.deletePreHash()
+        chainDb.createPreHash(hash)
+
+        // then sign
+        val sig = RSAFactory.sign(block.hash)
+        chainDb.updateBlockSignature(block, Signature(senzieName, sig))
+
+        logger.debug("block created")
+
+        // delete all transaction saved in the block from trans table
+        chainDb.deleteTrans(block.transactions)
+      } else {
+        logger.debug("No trans to create block" + context.self.path)
+      }
+
+      // reschedule to create
       context.system.scheduler.scheduleOnce(miningInterval.seconds, self, Create)
   }
 }

@@ -5,7 +5,6 @@ import java.util.UUID
 import com.datastax.driver.core.UDTValue
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
-import com.datastax.driver.core.utils.UUIDs
 import com.score.cchain.config.CassandraConf
 import com.score.cchain.protocol._
 import com.score.cchain.util.MinerFactory
@@ -76,21 +75,6 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
       MinerFactory.session.execute(s"TRUNCATE $cassandraKeyspace.hashes;")
     }
 
-    def createTrans(trans: Trans): Unit = {
-      // insert query
-      val statement = QueryBuilder.insertInto(cassandraKeyspace, "trans")
-        .value("bank", "sampath")
-        .value("id", UUIDs.timeBased())
-        .value("promize_bank", "sampath")
-        .value("from_zaddress", trans.fromZaddr)
-        .value("to_zaddress", trans.toZaddr)
-        .value("promize_id", UUID.randomUUID())
-        .value("timestamp", trans.timestamp)
-        .value("digsig", trans.digsig)
-
-      MinerFactory.session.execute(statement)
-    }
-
     def createBlock(block: Block): Unit = {
       // UDT
       val transType = MinerFactory.cluster.getMetadata.getKeyspace(cassandraKeyspace).getUserType("transaction")
@@ -99,10 +83,9 @@ trait ChainDbCompImpl extends ChainDbComp with CassandraConf {
       val transactions = block.transactions.map(t =>
         transType.newValue
           .setString("origin_zaddress", t.oriZaddr)
-          .setUUID("id", UUIDs.timeBased())
+          .setUUID("id", t.id)
           .setString("from_zaddress", t.fromZaddr)
           .setString("to_zaddress", t.toZaddr)
-          .setUUID("promize_id", UUID.randomUUID())
           .setString("action", t.action)
           .setString("blob", t.blob)
           .setLong("timestamp", t.timestamp)
