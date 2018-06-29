@@ -55,6 +55,16 @@
         <appender-ref ref="FILE-ROLLING"/>
     </logger>
 
+    <logger name="org.apache.kafka.clients">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <logger name="org.apache.kafka.common">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
     <logger name="slick">
         <level value="ERROR"/>
         <appender-ref ref="FILE-ROLLING"/>
