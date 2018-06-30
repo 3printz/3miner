@@ -55,8 +55,8 @@ class BlockCreator extends Actor with ChainDbCompImpl with AppConf with KafkaCon
         chainDb.updateBlockSignature(block, Signature(senzieName, RSAFactory.sign(block.hash)))
         chainDb.deleteTrans(block.transactions)
 
-        // publish message to kafka topic regarding new block
-        val senz = s"DATA #id ${block.id.toString} #time ${block.timestamp} #tras ${trans.size} @blockz ^minerz digsig"
+        // publish message to kafka topic (about new block)
+        val senz = s"DATA #uid ${block.id.toString} #time ${block.timestamp} #trans ${trans.size} @blockz ^minerz digsig"
         produzer ! Produze(kafkaTopic, senz)
 
         logger.debug("block created and published to kafka")

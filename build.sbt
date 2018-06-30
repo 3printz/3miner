@@ -9,6 +9,7 @@ libraryDependencies ++= {
   val akkaVersion       = "2.4.17"
   val cassandraVersion  = "3.1.1"
   val slickVersion      = "3.0.0"
+  val kafkaVersion      = "0.10.1.0"
 
   Seq(
     "com.typesafe.akka"           %% "akka-actor"               % akkaVersion,
@@ -22,7 +23,7 @@ libraryDependencies ++= {
     "org.elasticsearch.client"    % "transport"                 % "5.2.0",
     "org.slf4j"                   % "slf4j-api"                 % "1.7.5",
     "ch.qos.logback"              % "logback-classic"           % "1.0.9",
-    "org.apache.kafka"            % "kafka-clients"             % "0.10.1.0",
+    "org.apache.kafka"            % "kafka-clients"             % kafkaVersion,
     "org.scalatest"               % "scalatest_2.11"            % "2.2.1"               % "test"
   )
 }
